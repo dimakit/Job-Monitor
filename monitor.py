@@ -25,6 +25,7 @@ import time
 import urllib.request
 from datetime import date, datetime
 from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from pathlib import Path
 
 REPO_DIR = Path(__file__).resolve().parent
@@ -71,6 +72,169 @@ def qualifies(title, location_text, location_exception=False):
     if location_exception:
         return True
     return bool(LOC_REGEX.search(location_text or ""))
+
+
+# ---------- scoring ----------
+# Two layers:
+#  1. Deterministic bonuses (tier, exact-NY location) -- exact by definition,
+#     computed in code so they're perfectly consistent every run.
+#  2. LLM-judged "role fit" (domain/pricing relevance, technical-vs-strategic
+#     orientation, seniority-band fit) -- these need real judgment about
+#     intent, not keyword matching, so one batched Claude API call per run
+#     scores everything found that day against Dimitry's actual background.
+#     Falls back to a cruder keyword heuristic if no API key is configured
+#     (e.g. local testing) or the call fails, so the pipeline never breaks.
+
+TOP_PICK_THRESHOLD = 8
+
+NY_EXACT_REGEX = re.compile(r"New York|NYC", re.IGNORECASE)
+
+DIMITRY_CONTEXT = """\
+Dimitry Kitaigorodsky is a Director of Product Management (IC) at Visa, Embedded Finance, NYC. \
+~15 years total career in product/payments/finance, but genuine hands-on "core PM" tenure \
+(product-team PM work as usually defined) is only about 4 years -- the rest of his career \
+includes adjacent strategy/consulting/analytics roles that touch PM-like work without being a \
+formal PM seat. Do not over-credit seniority just because his current title is "Director" or his \
+total career is long.
+
+TARGET SENIORITY BAND for role requirements: roughly 8 years of PM experience, 0-2 years directly \
+managing other PMs. Roles pitched well above that (10+ years PM experience, 3+ years managing a \
+team of PMs) are a poor seniority match despite his Director title. Roles pitched well below that \
+band (entry-level IC tasks like "write PRDs," "support senior PMs," 2-3 years experience) are \
+ALSO a poor match -- he does not want a step down into basic execution work. The sweet spot is the \
+middle band, not either extreme.
+
+STRENGTHS: product strategy, pricing & monetization, GTM/commercialization strategy, market \
+sizing, storytelling, cross-functional influence, payments/fintech domain knowledge (non-technical). \
+Pricing/monetization work is his single clearest, most defensible positioning spike.
+
+EXPLICIT WEAKNESSES (documented, self-acknowledged): deep technical/system-design ownership, \
+engineering execution, data science, AI/ML technical depth, platform architecture, growth-loop \
+mechanics, heavy experimentation/A-B-testing roles. Roles that read as deeply technical/engineering- \
+heavy PM work are a bad fit even if the title says "Product Manager."
+
+Target comp: $450K+ total comp minimum bar for a next move.
+"""
+
+SCORING_PROMPT_TEMPLATE = """\
+{context}
+
+Score each job posting below on a ROLE FIT scale from 1 to 6 (integers only), based ONLY on the \
+qualitative factors described above -- ignore company tier and exact location, those are scored \
+separately. Consider:
+- Domain relevance: is this genuinely fintech/payments and/or pricing/monetization work? (both can \
+  apply and should be weighted positively if so; a fintech pricing role is his best-case scenario)
+- Technical vs. strategic orientation: does this read as deep technical/engineering-heavy PM work \
+  (score down) or strategic/pricing/GTM-oriented work (score up)?
+- Seniority-band fit: does the implied experience level match the ~8-years-PM / 0-2-years-managing \
+  sweet spot? IMPORTANT -- the penalty is NOT symmetric. A role that reads as somewhat MORE senior \
+  than the sweet spot (e.g. wants 10 years of PM experience) is a comfortable stretch for him and \
+  should only be penalized mildly, if at all -- he has a strong track record and can credibly reach \
+  up. A role that reads as MORE JUNIOR than the sweet spot (e.g. ~2 years PM experience, entry-level \
+  IC/PRD-writing tasks, "support senior PMs") is a much worse mismatch and should be penalized more \
+  heavily -- he would be overqualified, bored, and it signals a real level mismatch, not a stretch.
+
+1-2 = poor fit (wrong domain, clearly too junior, and/or heavily technical).
+3-4 = plausible/decent fit (roughly right band or a comfortable senior stretch, domain adjacent or \
+unclear, mixed orientation).
+5-6 = strong fit (right seniority band or a reasonable senior stretch, clearly strategic/pricing/GTM- \
+oriented, touches fintech/payments and/or pricing/monetization).
+
+Postings (JSON array, each with an "id"):
+{postings_json}
+
+Respond with ONLY a JSON array, no other text, in this exact shape:
+[{{"id": 0, "role_fit_score": 4, "rationale": "one short sentence"}}, ...]
+One entry per posting, in any order, matching every "id" given.
+"""
+
+
+def _deterministic_bonus(tier, location_text):
+    try:
+        tier_num = float(tier)
+    except (TypeError, ValueError):
+        tier_num = 2
+    if tier_num <= 1:
+        tier_bonus = 3
+    elif tier_num <= 2:
+        tier_bonus = 1
+    else:
+        tier_bonus = 0
+    location_bonus = 0.5 if NY_EXACT_REGEX.search(location_text or "") else 0
+    return tier_bonus + location_bonus
+
+
+def score_posting_heuristic(title, location_text, tier):
+    """Crude keyword-based fallback if the LLM call isn't available."""
+    score = 4
+    if re.search(r"Director|VP\b|Vice President|Head of|Chief Product", title, re.IGNORECASE):
+        score += 1
+    if re.search(r"payment|fintech|pricing|monetization|bank|wallet|lending|credit", title, re.IGNORECASE):
+        score += 1
+    score += _deterministic_bonus(tier, location_text)
+    return max(2, min(9.5, score))
+
+
+def score_postings_llm(findings):
+    """Batched LLM scoring. Returns dict {index_in_findings: (score, rationale)}; empty dict on failure."""
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    if not api_key or not findings:
+        return {}
+
+    postings = [
+        {"id": i, "company": f["company"], "title": f["title"], "location": f["location"]}
+        for i, f in enumerate(findings)
+    ]
+    prompt = SCORING_PROMPT_TEMPLATE.format(
+        context=DIMITRY_CONTEXT,
+        postings_json=json.dumps(postings, indent=2),
+    )
+
+    body = {
+        "model": "claude-sonnet-4-5",
+        "max_tokens": 4000,
+        "messages": [{"role": "user", "content": prompt}],
+    }
+    try:
+        resp_body, status, _ = fetch(
+            "https://api.anthropic.com/v1/messages",
+            method="POST",
+            body=body,
+            extra_headers={
+                "x-api-key": api_key,
+                "anthropic-version": "2023-06-01",
+                "Content-Type": "application/json",
+            },
+            timeout=60,
+        )
+        data = json.loads(resp_body)
+        text = data["content"][0]["text"].strip()
+        # strip markdown code fences if present
+        text = re.sub(r"^```(?:json)?\s*|\s*```$", "", text.strip())
+        parsed = json.loads(text)
+        results = {}
+        for item in parsed:
+            idx = item["id"]
+            role_fit = max(1, min(6, float(item["role_fit_score"])))
+            results[idx] = (role_fit, item.get("rationale", ""))
+        return results
+    except Exception as e:
+        print(f"LLM scoring failed, falling back to heuristic: {type(e).__name__}: {e}")
+        return {}
+
+
+def score_all_findings(findings):
+    """Attaches 'score' and 'rationale' to each finding dict in place."""
+    llm_results = score_postings_llm(findings)
+    for i, f in enumerate(findings):
+        bonus = _deterministic_bonus(f["tier"], f["location"])
+        if i in llm_results:
+            role_fit, rationale = llm_results[i]
+            f["score"] = round(max(2, min(9.5, role_fit + bonus)) * 2) / 2  # round to nearest 0.5
+            f["rationale"] = rationale
+        else:
+            f["score"] = score_posting_heuristic(f["title"], f["location"], f["tier"])
+            f["rationale"] = "(heuristic fallback -- LLM scoring unavailable this run)"
 
 
 # ---------- generic ATS handlers ----------
@@ -424,6 +588,156 @@ def save_seen_pairs(pairs):
         json.dump(seen, f, indent=2)
 
 
+def _html_escape(s):
+    return (str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;"))
+
+
+def build_plain_text(new_findings, errors, today):
+    top_picks = sorted([nf for nf in new_findings if nf["score"] >= TOP_PICK_THRESHOLD],
+                        key=lambda x: -x["score"])
+    lines = [f"Job monitor run for {today}.", "", f"{len(new_findings)} new qualifying posting(s):", ""]
+    if top_picks:
+        lines.append(f"TOP PICKS (score {TOP_PICK_THRESHOLD}+):")
+        for it in top_picks:
+            lines.append(f"  [{it['score']}] {it['company']} — {it['title']}")
+            lines.append(f"    {it['location']}")
+            if it.get("rationale"):
+                lines.append(f"    {it['rationale']}")
+            lines.append(f"    {it['url']}")
+        lines.append("")
+    by_company = {}
+    for nf in new_findings:
+        by_company.setdefault(nf["company"], []).append(nf)
+    for company, items in sorted(by_company.items()):
+        lines.append(f"=== {company} (Tier {items[0]['tier']}) ===")
+        for it in sorted(items, key=lambda x: -x["score"]):
+            lines.append(f"  [{it['score']}] {it['title']}")
+            lines.append(f"    {it['location']}")
+            if it.get("rationale"):
+                lines.append(f"    {it['rationale']}")
+            lines.append(f"    {it['url']}")
+        lines.append("")
+    if errors:
+        lines.append(f"Errors during this run ({len(errors)}):")
+        for e in errors:
+            lines.append(f"  - {e}")
+        lines.append("")
+    lines.append("-- Automated Job Monitor (auto-scores are AI-assisted, not full manual review)")
+    return "\n".join(lines)
+
+
+def _score_color(score):
+    if score >= TOP_PICK_THRESHOLD:
+        return "#0d652d", "#e6f4ea"
+    if score >= 6:
+        return "#8a6d00", "#fef7e0"
+    return "#5f6368", "#f1f3f4"
+
+
+def _render_card(it, show_company=False):
+    text_color, bg_color = _score_color(it["score"])
+    company_line = f"<div style=\"font-size:13px;color:#5f6368;margin-top:2px;\">{_html_escape(it['company'])} &middot; Tier {_html_escape(it['tier'])}</div>" if show_company else ""
+    rationale_line = ""
+    if it.get("rationale"):
+        rationale_line = f"<div style=\"font-size:12px;color:#3c4043;margin-top:6px;font-style:italic;\">{_html_escape(it['rationale'])}</div>"
+    return f"""
+            <tr>
+              <td style="padding:14px 16px;border:1px solid #e0e0e0;border-radius:8px;display:block;margin-bottom:10px;">
+                <span style="font-size:11px;font-weight:700;color:{text_color};background:{bg_color};border-radius:4px;padding:2px 7px;">SCORE {it['score']}</span>
+                <div style="margin-top:8px;">
+                  <a href="{_html_escape(it['url'])}" style="font-size:15px;font-weight:600;color:#1a1a1a;text-decoration:none;">{_html_escape(it['title'])}</a>
+                </div>
+                {company_line}
+                <div style="font-size:13px;color:#5f6368;margin-top:4px;">{_html_escape(it['location'])}</div>
+                {rationale_line}
+                <a href="{_html_escape(it['url'])}" style="font-size:12px;color:#1a73e8;text-decoration:none;display:inline-block;margin-top:8px;">View posting &rarr;</a>
+              </td>
+            </tr>"""
+
+
+def build_html(new_findings, errors, today):
+    top_picks = sorted([nf for nf in new_findings if nf["score"] >= TOP_PICK_THRESHOLD],
+                        key=lambda x: -x["score"])
+
+    top_picks_html = ""
+    if top_picks:
+        cards = "".join(_render_card(it, show_company=True) for it in top_picks)
+        top_picks_html = f"""
+        <div style="margin-bottom:28px;">
+          <div style="font-size:16px;font-weight:700;color:#0d652d;margin-bottom:8px;">
+            &#128293; Top Picks (score {TOP_PICK_THRESHOLD}+)
+          </div>
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:separate;border-spacing:0 8px;">
+            {cards}
+          </table>
+        </div>
+        <hr style="border:none;border-top:1px solid #e0e0e0;margin:0 0 24px 0;">"""
+
+    by_company = {}
+    for nf in new_findings:
+        by_company.setdefault(nf["company"], []).append(nf)
+
+    TIER_COLORS = {1: "#1a73e8", 2: "#7c3aed", "2.5": "#7c3aed"}
+
+    company_blocks = []
+    for company, items in sorted(by_company.items(), key=lambda kv: (kv[1][0].get("tier", 99), kv[0])):
+        tier = items[0].get("tier", "")
+        tier_color = TIER_COLORS.get(tier, "#5f6368")
+        cards = "".join(_render_card(it) for it in sorted(items, key=lambda x: -x["score"]))
+        company_blocks.append(f"""
+        <div style="margin-bottom:24px;">
+          <div style="font-size:16px;font-weight:700;color:#1a1a1a;margin-bottom:8px;">
+            {_html_escape(company)}
+            <span style="font-size:11px;font-weight:600;color:#ffffff;background:{tier_color};border-radius:4px;padding:2px 8px;margin-left:8px;vertical-align:middle;">TIER {tier}</span>
+          </div>
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:separate;border-spacing:0 8px;">
+            {cards}
+          </table>
+        </div>""")
+
+    errors_html = ""
+    if errors:
+        error_items = "".join(f"<li style='margin-bottom:4px;'>{_html_escape(e)}</li>" for e in errors)
+        errors_html = f"""
+        <div style="margin-top:24px;padding:12px 16px;background:#fef7e0;border-radius:8px;font-size:12px;color:#5f6368;">
+          <strong>{len(errors)} company check(s) had errors this run:</strong>
+          <ul style="margin:8px 0 0 0;padding-left:20px;">{error_items}</ul>
+        </div>"""
+
+    return f"""\
+<!doctype html>
+<html>
+<body style="margin:0;padding:0;background:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;padding:24px 0;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;max-width:600px;width:100%;">
+          <tr>
+            <td style="background:#1a1a1a;padding:20px 24px;">
+              <div style="color:#ffffff;font-size:18px;font-weight:700;">Job Monitor</div>
+              <div style="color:#9aa0a6;font-size:13px;margin-top:2px;">{len(new_findings)} new posting(s) &middot; {_html_escape(today)}</div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:24px;">
+              {top_picks_html}
+              {''.join(company_blocks)}
+              {errors_html}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 24px 20px 24px;font-size:11px;color:#9aa0a6;">
+              Auto-scores combine an AI judgment call (domain/seniority/orientation fit) with deterministic tier and location bonuses — a fast triage aid, not the same rigor as full manual review.
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>"""
+
+
 def send_digest_email(new_findings, errors, today):
     sender = os.environ.get("SMTP_SENDER_EMAIL")
     password = os.environ.get("SMTP_SENDER_PASSWORD")
@@ -440,28 +754,13 @@ def send_digest_email(new_findings, errors, today):
         return
 
     subject = f"Job Monitor: {len(new_findings)} new posting(s) — {today}"
-    lines = [f"Job monitor run for {today}.", "", f"{len(new_findings)} new qualifying posting(s):", ""]
-    by_company = {}
-    for nf in new_findings:
-        by_company.setdefault(nf["company"], []).append(nf)
-    for company, items in sorted(by_company.items()):
-        lines.append(f"=== {company} (Tier {items[0]['tier']}) ===")
-        for it in items:
-            lines.append(f"  - {it['title']}")
-            lines.append(f"    {it['location']}")
-            lines.append(f"    {it['url']}")
-        lines.append("")
-    if errors:
-        lines.append(f"Errors during this run ({len(errors)}):")
-        for e in errors:
-            lines.append(f"  - {e}")
-        lines.append("")
-    lines.append("-- Automated Job Monitor (cloud routine)")
 
-    msg = MIMEText("\n".join(lines), "plain")
+    msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
     msg["From"] = sender
     msg["To"] = recipient
+    msg.attach(MIMEText(build_plain_text(new_findings, errors, today), "plain"))
+    msg.attach(MIMEText(build_html(new_findings, errors, today), "html"))
 
     with smtplib.SMTP_SSL(host, port) as server:
         server.login(sender, password)
@@ -533,9 +832,10 @@ def main():
         for r in results:
             pair = (company, r["title"].strip())
             if pair not in seen_pairs:
+                tier = cfg.get("tier", "")
                 new_findings.append({
                     "company": company,
-                    "tier": cfg.get("tier", ""),
+                    "tier": tier,
                     "title": r["title"],
                     "location": r["location"],
                     "url": r["url"],
@@ -543,10 +843,12 @@ def main():
                 seen_pairs.add(pair)
         time.sleep(0.2)
 
+    score_all_findings(new_findings)
+
     today = date.today().isoformat()
     print(f"New qualifying postings: {len(new_findings)}")
     for nf in new_findings:
-        print(f"  [{nf['company']}] {nf['title']} — {nf['location']}")
+        print(f"  [{nf['score']}] [{nf['company']}] {nf['title']} — {nf['location']}")
     if errors:
         print(f"Errors ({len(errors)}):")
         for e in errors:
