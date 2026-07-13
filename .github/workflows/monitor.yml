@@ -1,0 +1,30 @@
+name: Job Monitor
+
+  on:
+    schedule:
+      - cron: '0 11,23 * * *'
+    workflow_dispatch: {}
+
+  permissions:
+    contents: write
+
+  jobs:
+    check-postings:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repo
+          uses: actions/checkout@v4
+
+        - name: Set up Python
+          uses: actions/setup-python@v5
+          with:
+            python-version: '3.12'
+
+        - name: Run job monitor
+          env:
+            SMTP_HOST: smtp.gmail.com
+            SMTP_PORT: '465'
+            SMTP_SENDER_EMAIL: ${{ secrets.SMTP_SENDER_EMAIL }}
+            SMTP_SENDER_PASSWORD: ${{ secrets.SMTP_SENDER_PASSWORD }}
+            SMTP_RECIPIENT_EMAIL: ${{ secrets.SMTP_RECIPIENT_EMAIL }}
+          run: python3 monitor.py
