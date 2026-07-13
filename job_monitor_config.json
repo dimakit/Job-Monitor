@@ -84,6 +84,7 @@
     "Revolut": {"tier": 2, "platform": "special", "handler": "revolut"},
     "Uber": {"tier": 1, "platform": "special", "handler": "uber"},
     "Box": {"tier": 2, "platform": "special", "handler": "box"},
-    "American Express": {"tier": "2.5", "platform": "special", "handler": "american_express"}
+    "American Express": {"tier": "2.5", "platform": "special", "handler": "american_express"},
+    "Google": {"tier": 1, "platform": "special", "handler": "google"}
   }
 }
