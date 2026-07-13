@@ -740,6 +740,43 @@ def handler_adobe(cfg):
     return out
 
 
+def handler_capital_one(cfg):
+    base = "https://capitalone.wd12.myworkdayjobs.com/wday/cxs/capitalone/Capital_One/jobs"
+    # first call (no location facet) just to read the facet ID list for NY/US Remote
+    body, status, _ = fetch(base, method="POST", body={"appliedFacets": {}, "limit": 1, "offset": 0, "searchText": "Product Manager"})
+    data = json.loads(body)
+    location_ids = []
+    for facet_group in data.get("facets", []):
+        if facet_group.get("facetParameter") != "locationMainGroup":
+            continue
+        for sub in facet_group.get("values", []):
+            for loc in sub.get("values", []):
+                desc = loc.get("descriptor", "")
+                if re.search(r"New York|US Remote", desc, re.IGNORECASE):
+                    location_ids.append(loc["id"])
+
+    out = []
+    offset = 0
+    while location_ids:
+        body_req = {"appliedFacets": {"locations": location_ids}, "limit": 20, "offset": offset, "searchText": "Product Manager"}
+        body, status, _ = fetch(base, method="POST", body=body_req)
+        data = json.loads(body)
+        postings = data.get("jobPostings", [])
+        if not postings:
+            break
+        for j in postings:
+            title = j.get("title", "")
+            # location already guaranteed by the server-side facet filter above
+            if qualifies(title, "New York, NY", False):
+                path = j.get("externalPath", "")
+                out.append({"title": title, "location": j.get("locationsText", ""), "url": "https://capitalone.wd12.myworkdayjobs.com/Capital_One" + path})
+        offset += 20
+        if offset > 500:
+            break
+        time.sleep(0.2)
+    return out
+
+
 SPECIAL_HANDLERS = {
     "amazon": handler_amazon,
     "jpmorgan": handler_jpmorgan,
@@ -760,6 +797,7 @@ SPECIAL_HANDLERS = {
     "google": handler_google,
     "mastercard": handler_mastercard,
     "adobe": handler_adobe,
+    "capital_one": handler_capital_one,
 }
 
 

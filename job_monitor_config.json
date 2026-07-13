@@ -52,7 +52,7 @@
     "Spotify": {"tier": 1, "platform": "lever", "token": "spotify"},
     "Salesforce": {"tier": 1, "platform": "unresolved", "note": "not on Greenhouse/Ashby/Lever — large enterprise, likely custom/Workday ATS, needs dedicated investigation"},
     "Adobe": {"tier": 1, "platform": "special", "handler": "adobe"},
-    "Capital One": {"tier": 2, "platform": "unresolved", "note": "not on Greenhouse/Ashby/Lever — large enterprise, likely custom/Workday ATS, needs dedicated investigation"},
+    "Capital One": {"tier": 2, "platform": "special", "handler": "capital_one"},
     "PayPal": {"tier": 1, "platform": "unresolved", "note": "not on Greenhouse/Ashby/Lever — large enterprise, likely custom/Workday ATS, needs dedicated investigation"},
     "Mastercard": {"tier": 2, "platform": "special", "handler": "mastercard"},
     "Zendesk": {"tier": 2, "platform": "unresolved", "note": "not on Greenhouse/Ashby/Lever — needs dedicated investigation"},
