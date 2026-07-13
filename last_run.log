@@ -1,8 +1,6 @@
-Run at: 2026-07-13T19:50:57.341061Z
+Run at: 2026-07-13T20:14:28.940451Z
 Companies checked: 62
-New findings: 1
-Errors: 1
+New findings: 0
+Errors: 0
 SMTP env vars present: True
-Email sent: True
-Error details:
-  - Elastic: TimeoutError: The read operation timed out
+Email sent: False
