@@ -709,6 +709,37 @@ def handler_google(cfg):
     return out
 
 
+def handler_adobe(cfg):
+    job_urls = set()
+    for sm in ["https://careers.adobe.com/us/en/sitemap1.xml", "https://careers.adobe.com/us/en/sitemap2.xml"]:
+        sm_body, _, _ = fetch(sm)
+        sm_text = sm_body.decode("utf-8", errors="ignore")
+        for loc in re.findall(r"<loc>([^<]+)</loc>", sm_text):
+            if "/job/" in loc and re.search(r"product-manag", loc, re.IGNORECASE):
+                job_urls.add(loc)
+
+    out = []
+    for ju in job_urls:
+        try:
+            body, status, _ = fetch(ju)
+        except Exception:
+            continue
+        page_html = body.decode("utf-8", errors="ignore")
+        m = re.search(r'application/ld\+json">({.*?})</script>', page_html, re.DOTALL)
+        if not m:
+            continue
+        try:
+            ld = json.loads(m.group(1))
+        except Exception:
+            continue
+        title = ld.get("title", "")
+        cities = re.findall(r'"addressLocality":"([^"]+)"', page_html)
+        loc_full = ", ".join(cities)
+        if qualifies(title, loc_full, False):
+            out.append({"title": title, "location": loc_full, "url": ju})
+    return out
+
+
 SPECIAL_HANDLERS = {
     "amazon": handler_amazon,
     "jpmorgan": handler_jpmorgan,
@@ -728,6 +759,7 @@ SPECIAL_HANDLERS = {
     "american_express": handler_american_express,
     "google": handler_google,
     "mastercard": handler_mastercard,
+    "adobe": handler_adobe,
 }
 
 

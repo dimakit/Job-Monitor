@@ -51,7 +51,7 @@
     "Deel": {"tier": 2, "platform": "unresolved", "note": "Ashby token 'deel' returned 0 jobs (likely wrong/stale token) — needs re-verification. Note: Deel is also Klarna's ATS provider (see special handler) but Deel's own careers are a separate board.", "location_exception": true},
     "Spotify": {"tier": 1, "platform": "lever", "token": "spotify"},
     "Salesforce": {"tier": 1, "platform": "unresolved", "note": "not on Greenhouse/Ashby/Lever — large enterprise, likely custom/Workday ATS, needs dedicated investigation"},
-    "Adobe": {"tier": 1, "platform": "unresolved", "note": "not on Greenhouse/Ashby/Lever — large enterprise, likely custom/Workday ATS, needs dedicated investigation"},
+    "Adobe": {"tier": 1, "platform": "special", "handler": "adobe"},
     "Capital One": {"tier": 2, "platform": "unresolved", "note": "not on Greenhouse/Ashby/Lever — large enterprise, likely custom/Workday ATS, needs dedicated investigation"},
     "PayPal": {"tier": 1, "platform": "unresolved", "note": "not on Greenhouse/Ashby/Lever — large enterprise, likely custom/Workday ATS, needs dedicated investigation"},
     "Mastercard": {"tier": 2, "platform": "special", "handler": "mastercard"},
