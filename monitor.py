@@ -23,7 +23,7 @@ import subprocess
 import smtplib
 import time
 import urllib.request
-from datetime import date
+from datetime import date, datetime
 from email.mime.text import MIMEText
 from pathlib import Path
 
@@ -469,18 +469,37 @@ def send_digest_email(new_findings, errors, today):
     print(f"Digest email sent to {recipient}.")
 
 
+def write_run_log(new_findings, errors, companies_checked, email_attempted, email_sent):
+    log_path = REPO_DIR / "last_run.log"
+    timestamp = datetime.utcnow().isoformat() + "Z"
+    lines = [
+        f"Run at: {timestamp}",
+        f"Companies checked: {companies_checked}",
+        f"New findings: {len(new_findings)}",
+        f"Errors: {len(errors)}",
+        f"SMTP env vars present: {email_attempted}",
+        f"Email sent: {email_sent}",
+    ]
+    if errors:
+        lines.append("Error details:")
+        for e in errors:
+            lines.append(f"  - {e}")
+    with open(log_path, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines) + "\n")
+
+
 def git_commit_and_push():
     subprocess.run(["git", "config", "user.email", "job-monitor-bot@local"], cwd=REPO_DIR, check=True)
     subprocess.run(["git", "config", "user.name", "Job Monitor Bot"], cwd=REPO_DIR, check=True)
-    subprocess.run(["git", "add", "seen_pairs.json"], cwd=REPO_DIR, check=True)
+    subprocess.run(["git", "add", "seen_pairs.json", "last_run.log"], cwd=REPO_DIR, check=True)
     status = subprocess.run(["git", "status", "--porcelain"], cwd=REPO_DIR, capture_output=True, text=True, check=True)
     if not status.stdout.strip():
-        print("No changes to seen_pairs.json -- nothing to commit.")
+        print("No changes -- nothing to commit.")
         return
     today = date.today().isoformat()
-    subprocess.run(["git", "commit", "-m", f"Update seen postings — {today}"], cwd=REPO_DIR, check=True)
+    subprocess.run(["git", "commit", "-m", f"Run log + seen postings update — {today}"], cwd=REPO_DIR, check=True)
     subprocess.run(["git", "push"], cwd=REPO_DIR, check=True)
-    print("Committed and pushed updated seen_pairs.json.")
+    print("Committed and pushed run log + updated seen_pairs.json.")
 
 
 def main():
@@ -535,6 +554,13 @@ def main():
 
     save_seen_pairs(seen_pairs)
     send_digest_email(new_findings, errors, today)
+
+    email_attempted = all(os.environ.get(v) for v in
+                           ("SMTP_SENDER_EMAIL", "SMTP_SENDER_PASSWORD", "SMTP_RECIPIENT_EMAIL"))
+    email_sent = email_attempted and bool(new_findings)
+    companies_checked = len([c for c in config.values() if c.get("platform") not in ("unresolved", "manual_only")])
+    write_run_log(new_findings, errors, companies_checked, email_attempted, email_sent)
+
     git_commit_and_push()
 
 
