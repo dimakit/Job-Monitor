@@ -18,6 +18,7 @@ actually worth pursuing from the raw digest.
 
 import json
 import re
+import html as html_module
 import os
 import subprocess
 import smtplib
@@ -432,7 +433,7 @@ def handler_shopify(cfg):
             continue
         jhtml = jbody.decode("utf-8", errors="ignore")
         m = re.search(r"<title>([^<]*)</title>", jhtml)
-        title_full = m.group(1) if m else href
+        title_full = html_module.unescape(m.group(1)) if m else href
         title = title_full.split(" - ")[0].strip() if " - " in title_full else title_full
         if qualifies(title, title_full, True):
             out.append({"title": title, "location": "(see posting)", "url": job_url})
@@ -514,7 +515,7 @@ def handler_docusign(cfg):
         m = re.search(r"<title>([^<]*)</title>", html)
         if not m:
             continue
-        title_full = m.group(1)
+        title_full = html_module.unescape(m.group(1))
         title = title_full.split(" in ")[0].replace("careers-home", "").strip(" |-")
         if not qualifies(title, title_full, False):
             continue
@@ -603,6 +604,29 @@ def handler_revolut(cfg):
     return out
 
 
+def handler_uber(cfg):
+    sm_body, _, _ = fetch("https://jobs.uber.com/en/jobs/sitemap.xml")
+    sm_text = sm_body.decode("utf-8", errors="ignore")
+    job_urls = re.findall(r"<loc>([^<]+)</loc>", sm_text)
+    out = []
+    for ju in job_urls:
+        try:
+            body, status, _ = fetch(ju, extra_headers={"Range": "bytes=0-5000"})
+        except Exception:
+            continue
+        html = body.decode("utf-8", errors="ignore")
+        m = re.search(r"<title>([^<]*)</title>", html)
+        if not m:
+            continue
+        title_full = html_module.unescape(m.group(1))
+        if qualifies(title_full, title_full, False):
+            parts = title_full.split(", ")
+            title = ", ".join(parts[:-2]) if len(parts) > 2 else parts[0]
+            loc = ", ".join(parts[-2:]) if len(parts) > 2 else (parts[1] if len(parts) > 1 else "")
+            out.append({"title": title, "location": loc, "url": ju})
+    return out
+
+
 SPECIAL_HANDLERS = {
     "amazon": handler_amazon,
     "jpmorgan": handler_jpmorgan,
@@ -617,6 +641,7 @@ SPECIAL_HANDLERS = {
     "surgeai": handler_surgeai,
     "airbnb": handler_airbnb,
     "revolut": handler_revolut,
+    "uber": handler_uber,
 }
 
 

@@ -81,6 +81,7 @@
     "Hugging Face": {"tier": 1, "platform": "special", "handler": "workable_huggingface"},
     "Airbnb": {"tier": 1, "platform": "special", "handler": "airbnb"},
     "Rippling": {"tier": 2, "platform": "manual_only", "note": "cannot autonomously discover new postings (Algolia credentials not statically available); relies on Dimitry sending direct ats.rippling.com links"},
-    "Revolut": {"tier": 2, "platform": "special", "handler": "revolut"}
+    "Revolut": {"tier": 2, "platform": "special", "handler": "revolut"},
+    "Uber": {"tier": 1, "platform": "special", "handler": "uber"}
   }
 }
