@@ -579,6 +579,30 @@ def handler_airbnb(cfg):
     return out
 
 
+def _slugify(text):
+    slug = re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
+    return re.sub(r"-+", "-", slug)
+
+
+def handler_revolut(cfg):
+    body, status, _ = fetch("https://www.revolut.com/careers/")
+    html = body.decode("utf-8", errors="ignore")
+    m = re.search(r'<script id="__NEXT_DATA__" type="application/json">(.*?)</script>', html, re.DOTALL)
+    data = json.loads(m.group(1))
+    positions = data["props"]["pageProps"]["positions"]
+    out = []
+    for p in positions:
+        title = p.get("text", "")
+        locs = p.get("locations", []) or []
+        loc_names = [l.get("name", "") for l in locs if isinstance(l, dict)]
+        loc_full = ", ".join(loc_names)
+        if qualifies(title, loc_full, False):
+            pid = p.get("id", "")
+            url = f"https://www.revolut.com/careers/position/{_slugify(title)}-{pid}/"
+            out.append({"title": title, "location": loc_full, "url": url})
+    return out
+
+
 SPECIAL_HANDLERS = {
     "amazon": handler_amazon,
     "jpmorgan": handler_jpmorgan,
@@ -592,6 +616,7 @@ SPECIAL_HANDLERS = {
     "docusign": handler_docusign,
     "surgeai": handler_surgeai,
     "airbnb": handler_airbnb,
+    "revolut": handler_revolut,
 }
 
 
