@@ -39,9 +39,12 @@ HEADERS = {
 }
 
 PM_REGEX = re.compile(
-    r"Product Manager|Group Product Manager|Staff Product Manager|"
-    r"Principal Product Manager|Director.{0,3}Product Manag|Director of Product\b|"
-    r"VP.{0,3}Product\b|Head of Product\b|Research Product Manager|Product Lead",
+    # "Product Manag(er|ement)" catches any seniority prefix (Group/Staff/Principal/
+    # Senior/Director/Associate/etc.) AND both word orders -- some companies (e.g.
+    # American Express) title roles "Manager, Product Management" rather than
+    # "Product Manager", which a narrower "Product Manager"-only pattern would miss.
+    r"Product Manag(?:er|ement)|Director of Product\b|"
+    r"VP.{0,3}Product\b|Head of Product\b|Product Lead",
     re.IGNORECASE,
 )
 EXCLUDE_REGEX = re.compile(
@@ -327,12 +330,12 @@ def handler_amazon(cfg):
     return out
 
 
-def handler_jpmorgan(cfg):
+def _oracle_cloud_jobs(hostname):
     out = []
     offset = 0
     while True:
         url = (
-            "https://jpmc.fa.oraclecloud.com/hcmRestApi/resources/latest/recruitingCEJobRequisitions"
+            f"https://{hostname}/hcmRestApi/resources/latest/recruitingCEJobRequisitions"
             f"?onlyData=true&expand=requisitionList&finder=findReqs;siteNumber=CX_1,facetsList=LOCATIONS,"
             f"limit=25,offset={offset},keyword=Product%20Manager"
         )
@@ -346,11 +349,19 @@ def handler_jpmorgan(cfg):
             loc = j.get("PrimaryLocation", "") or ""
             if qualifies(title, loc, False):
                 job_id = j.get("Id") or j.get("JobRequisitionId", "")
-                out.append({"title": title, "location": loc, "url": f"https://jpmc.fa.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/requisition/{job_id}"})
+                out.append({"title": title, "location": loc, "url": f"https://{hostname}/hcmUI/CandidateExperience/en/sites/CX_1/requisition/{job_id}"})
         offset += 25
         if offset > 300:
             break
     return out
+
+
+def handler_jpmorgan(cfg):
+    return _oracle_cloud_jobs("jpmc.fa.oraclecloud.com")
+
+
+def handler_american_express(cfg):
+    return _oracle_cloud_jobs("egug.fa.us2.oraclecloud.com")
 
 
 def handler_palo_alto_networks(cfg):
@@ -627,6 +638,29 @@ def handler_uber(cfg):
     return out
 
 
+def handler_box(cfg):
+    sm_body, _, _ = fetch("https://careers.box.com/sitemap.xml")
+    sm_text = sm_body.decode("utf-8", errors="ignore")
+    job_urls = re.findall(r"<loc>(https://careers\.box\.com/en/jobs/\d+/[^<]+)</loc>", sm_text)
+    out = []
+    for ju in job_urls:
+        try:
+            body, status, _ = fetch(ju, extra_headers={"Range": "bytes=0-5000"})
+        except Exception:
+            continue
+        page_html = body.decode("utf-8", errors="ignore")
+        m = re.search(r"<title>([^<]*)</title>", page_html)
+        if not m:
+            continue
+        title_full = html_module.unescape(m.group(1))
+        if qualifies(title_full, title_full, False):
+            parts = title_full.split(" | ")[0].split(", ")
+            title = ", ".join(parts[:-1]) if len(parts) > 1 else parts[0]
+            loc = parts[-1] if len(parts) > 1 else ""
+            out.append({"title": title, "location": loc, "url": ju})
+    return out
+
+
 SPECIAL_HANDLERS = {
     "amazon": handler_amazon,
     "jpmorgan": handler_jpmorgan,
@@ -642,6 +676,8 @@ SPECIAL_HANDLERS = {
     "airbnb": handler_airbnb,
     "revolut": handler_revolut,
     "uber": handler_uber,
+    "box": handler_box,
+    "american_express": handler_american_express,
 }
 
 
