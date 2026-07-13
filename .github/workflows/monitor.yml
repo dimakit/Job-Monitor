@@ -27,4 +27,5 @@ jobs:
           SMTP_SENDER_EMAIL: ${{ secrets.SMTP_SENDER_EMAIL }}
           SMTP_SENDER_PASSWORD: ${{ secrets.SMTP_SENDER_PASSWORD }}
           SMTP_RECIPIENT_EMAIL: ${{ secrets.SMTP_RECIPIENT_EMAIL }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python3 monitor.py
