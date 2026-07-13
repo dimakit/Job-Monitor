@@ -49,6 +49,21 @@ EXCLUDE_REGEX = re.compile(
     re.IGNORECASE,
 )
 LOC_REGEX = re.compile(r"New York|NYC|Remote", re.IGNORECASE)
+NY_MENTION_REGEX = re.compile(r"New York|NYC", re.IGNORECASE)
+# "Remote" alone is not enough -- many postings pair it with a non-US country/city
+# (e.g. "Remote - India", "Canada - Remote", "Israel - Remote"). Dimitry's constraint
+# is NY-or-US-remote, not remote-from-anywhere. If a foreign marker appears anywhere
+# near "Remote" and there's no separate explicit NY mention, reject it.
+FOREIGN_REMOTE_MARKER_REGEX = re.compile(
+    r"India|Brazil|Mexico|Israel|Germany|Turkey|Colombia|France|Ireland|Spain|"
+    r"United Kingdom|\bUK\b|Poland|Portugal|Singapore|\bUAE\b|Emirates|Austria|"
+    r"\bCanada\b|Philippines|Argentina|Chile|Japan|China|Australia|Netherlands|"
+    r"Italy|Switzerland|Czech|Hungary|Greece|Nigeria|Egypt|Pakistan|Indonesia|"
+    r"Vietnam|Thailand|Malaysia|Korea|Taiwan|Hong Kong|New Zealand|Romania|Sweden|"
+    r"Lithuania|Bangalore|Krakow|Dublin|London|Berlin|Madrid|Cyprus|Vilnius|"
+    r"S(?:a|ã)o Paulo",
+    re.IGNORECASE,
+)
 
 
 def fetch(url, method="GET", body=None, extra_headers=None, timeout=15):
@@ -71,7 +86,13 @@ def qualifies(title, location_text, location_exception=False):
         return False
     if location_exception:
         return True
-    return bool(LOC_REGEX.search(location_text or ""))
+    loc = location_text or ""
+    if not LOC_REGEX.search(loc):
+        return False
+    if NY_MENTION_REGEX.search(loc):
+        return True
+    # matched only via "Remote" -- reject if it's paired with a non-US location marker
+    return not FOREIGN_REMOTE_MARKER_REGEX.search(loc)
 
 
 # ---------- scoring ----------
