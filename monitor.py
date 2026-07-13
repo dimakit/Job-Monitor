@@ -661,6 +661,44 @@ def handler_box(cfg):
     return out
 
 
+def handler_google(cfg):
+    out = []
+    seen_ids = set()
+    page = 1
+    while True:
+        url = (
+            "https://www.google.com/about/careers/applications/jobs/results"
+            f"?q=Product%20Manager&location=New%20York%2C%20NY%2C%20USA&page={page}"
+        )
+        body, status, _ = fetch(url)
+        html_text = body.decode("utf-8", errors="ignore")
+        m = re.search(r"AF_initDataCallback\(\{key: 'ds:1', hash: '.', data:(\[.*?\]), sideChannel:", html_text, re.DOTALL)
+        if not m:
+            break
+        data = json.loads(m.group(1))
+        entries = data[0] or []
+        if not entries:
+            break
+        for entry in entries:
+            jid = entry[0]
+            if jid in seen_ids:
+                continue
+            seen_ids.add(jid)
+            title = entry[1]
+            locs = entry[9] or []
+            loc_names = [l[0] for l in locs if isinstance(l, list) and l]
+            loc_full = ", ".join(loc_names)
+            if qualifies(title, loc_full, False):
+                out.append({"title": title, "location": loc_full, "url": entry[2]})
+        if len(entries) < 20:
+            break
+        page += 1
+        if page > 15:
+            break
+        time.sleep(0.3)
+    return out
+
+
 SPECIAL_HANDLERS = {
     "amazon": handler_amazon,
     "jpmorgan": handler_jpmorgan,
@@ -678,6 +716,7 @@ SPECIAL_HANDLERS = {
     "uber": handler_uber,
     "box": handler_box,
     "american_express": handler_american_express,
+    "google": handler_google,
 }
 
 
