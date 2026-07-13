@@ -364,11 +364,12 @@ def handler_american_express(cfg):
     return _oracle_cloud_jobs("egug.fa.us2.oraclecloud.com")
 
 
-def handler_palo_alto_networks(cfg):
+def _workday_jobs(subdomain, wd_num, tenant, site, max_offset=300):
     out = []
     offset = 0
+    base = f"https://{subdomain}.wd{wd_num}.myworkdayjobs.com"
     while True:
-        url = "https://paloaltonetworks.wd5.myworkdayjobs.com/wday/cxs/paloaltonetworks/panwexternalcareers/jobs"
+        url = f"{base}/wday/cxs/{tenant}/{site}/jobs"
         body_req = {"appliedFacets": {}, "limit": 20, "offset": offset, "searchText": "Product Manager"}
         body, status, _ = fetch(url, method="POST", body=body_req)
         data = json.loads(body)
@@ -380,11 +381,20 @@ def handler_palo_alto_networks(cfg):
             loc = j.get("locationsText", "") or ""
             if qualifies(title, loc, False):
                 path = j.get("externalPath", "")
-                out.append({"title": title, "location": loc, "url": "https://paloaltonetworks.wd5.myworkdayjobs.com/panwexternalcareers" + path})
+                out.append({"title": title, "location": loc, "url": f"{base}/{site}" + path})
         offset += 20
-        if offset > 200:
+        if offset > max_offset:
             break
+        time.sleep(0.2)
     return out
+
+
+def handler_palo_alto_networks(cfg):
+    return _workday_jobs("paloaltonetworks", 5, "paloaltonetworks", "panwexternalcareers")
+
+
+def handler_mastercard(cfg):
+    return _workday_jobs("mastercard", 1, "mastercard", "CorporateCareers", max_offset=650)
 
 
 def handler_workable_huggingface(cfg):
@@ -717,6 +727,7 @@ SPECIAL_HANDLERS = {
     "box": handler_box,
     "american_express": handler_american_express,
     "google": handler_google,
+    "mastercard": handler_mastercard,
 }
 
 
