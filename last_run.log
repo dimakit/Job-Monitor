@@ -1,6 +1,8 @@
-Run at: 2026-07-13T20:14:28.940451Z
-Companies checked: 62
-New findings: 0
-Errors: 0
+Run at: 2026-07-14T02:52:48.534656Z
+Companies checked: 70
+New findings: 154
+Errors: 1
 SMTP env vars present: True
-Email sent: False
+Email sent: True
+Error details:
+  - Revolut: HTTPError: HTTP Error 403: Forbidden
