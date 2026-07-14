@@ -907,7 +907,13 @@ def build_html(new_findings, errors, today):
     TIER_COLORS = {1: "#1a73e8", 2: "#7c3aed", "2.5": "#7c3aed"}
 
     company_blocks = []
-    for company, items in sorted(by_company.items(), key=lambda kv: (kv[1][0].get("tier", 99), kv[0])):
+    def _tier_sort_key(kv):
+        try:
+            return (float(kv[1][0].get("tier", 99)), kv[0])
+        except (TypeError, ValueError):
+            return (99, kv[0])
+
+    for company, items in sorted(by_company.items(), key=_tier_sort_key):
         tier = items[0].get("tier", "")
         tier_color = TIER_COLORS.get(tier, "#5f6368")
         cards = "".join(_render_card(it) for it in sorted(items, key=lambda x: -x["score"]))
