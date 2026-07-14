@@ -24,6 +24,7 @@ import subprocess
 import smtplib
 import time
 import urllib.request
+import urllib.error
 from datetime import date, datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -35,7 +36,9 @@ SEEN_PATH = REPO_DIR / "seen_pairs.json"
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                  "(KHTML, like Gecko) Chrome/120.0 Safari/537.36"
+                  "(KHTML, like Gecko) Chrome/120.0 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.9",
 }
 
 PM_REGEX = re.compile(
@@ -70,17 +73,54 @@ FOREIGN_REMOTE_MARKER_REGEX = re.compile(
 )
 
 
-def fetch(url, method="GET", body=None, extra_headers=None, timeout=15):
+class FetchError(Exception):
+    def __init__(self, message, code=None):
+        super().__init__(message)
+        self.code = code
+
+
+def fetch(url, method="GET", body=None, extra_headers=None, timeout=15, retries=2):
+    # Shells out to curl instead of using urllib. Several sites (Netflix,
+    # Revolut) fingerprint and block urllib's TLS/HTTP client signature
+    # specifically while curl's default signature passes fine -- this isn't
+    # about headers/UA, it's the underlying client library itself.
     headers = dict(HEADERS)
     if extra_headers:
         headers.update(extra_headers)
-    data = None
+    data_bytes = None
     if body is not None:
-        data = json.dumps(body).encode("utf-8")
+        data_bytes = json.dumps(body).encode("utf-8")
         headers.setdefault("Content-Type", "application/json")
-    req = urllib.request.Request(url, data=data, headers=headers, method=method)
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return resp.read(), resp.status, resp.headers
+
+    cmd = ["curl", "-s", "-X", method, "--max-time", str(timeout), "-w", "\n__STATUS__:%{http_code}"]
+    for k, v in headers.items():
+        cmd += ["-H", f"{k}: {v}"]
+    if data_bytes is not None:
+        cmd += ["--data-binary", "@-"]
+    cmd.append(url)
+
+    last_error = None
+    marker = b"\n__STATUS__:"
+    for attempt in range(retries + 1):
+        result = subprocess.run(cmd, input=data_bytes, capture_output=True, timeout=timeout + 10)
+        output = result.stdout
+        idx = output.rfind(marker)
+        if idx == -1:
+            last_error = FetchError(f"curl failed for {url}: {result.stderr.decode('utf-8', errors='ignore')[:300]}")
+            if attempt < retries:
+                time.sleep(1.5 * (attempt + 1))
+                continue
+            raise last_error
+        resp_body = output[:idx]
+        status = int(output[idx + len(marker):].decode().strip() or "0")
+        if status >= 400:
+            last_error = FetchError(f"HTTP {status} for {url}", code=status)
+            if status in (403, 429, 503) and attempt < retries:
+                time.sleep(1.5 * (attempt + 1))
+                continue
+            raise last_error
+        return resp_body, status, {}
+    raise last_error
 
 
 def qualifies(title, location_text, location_exception=False):
