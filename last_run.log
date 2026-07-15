@@ -1,8 +1,9 @@
-Run at: 2026-07-15T00:54:12.677552Z
+Run at: 2026-07-15T13:13:44.687469Z
 Companies checked: 70
-New findings: 26
-Errors: 1
+New findings: 6
+Errors: 2
 SMTP env vars present: True
 Email sent: True
 Error details:
+  - Mastercard: JSONDecodeError: Expecting value: line 1 column 1 (char 0)
   - Revolut: FetchError: HTTP 403 for https://www.revolut.com/careers/
