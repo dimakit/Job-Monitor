@@ -1,8 +1,9 @@
-Run at: 2026-07-17T00:59:27.632077Z
+Run at: 2026-07-17T13:07:26.019506Z
 Companies checked: 70
-New findings: 3
-Errors: 1
+New findings: 2
+Errors: 2
 SMTP env vars present: True
 Email sent: True
 Error details:
+  - Mastercard: FetchError: HTTP 502 for https://mastercard.wd1.myworkdayjobs.com/wday/cxs/mastercard/CorporateCareers/jobs
   - Revolut: FetchError: HTTP 403 for https://www.revolut.com/careers/
