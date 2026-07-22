@@ -1,9 +1,8 @@
-Run at: 2026-07-21T13:23:45.664957Z
+Run at: 2026-07-22T00:55:38.272547Z
 Companies checked: 70
-New findings: 1
-Errors: 2
+New findings: 14
+Errors: 1
 SMTP env vars present: True
 Email sent: True
 Error details:
-  - CoreWeave: JSONDecodeError: Expecting value: line 1 column 1 (char 0)
   - Revolut: FetchError: HTTP 403 for https://www.revolut.com/careers/
