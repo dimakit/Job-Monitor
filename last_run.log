@@ -1,11 +1,8 @@
-Run at: 2026-07-25T13:02:02.607506Z
+Run at: 2026-07-26T01:02:00.738566Z
 Companies checked: 70
 New findings: 0
-Errors: 4
+Errors: 1
 SMTP env vars present: True
 Email sent: False
 Error details:
-  - Spotify: JSONDecodeError: Expecting value: line 1 column 1 (char 0)
-  - Amazon: JSONDecodeError: Expecting value: line 1 column 1 (char 0)
-  - Palantir: JSONDecodeError: Expecting value: line 1 column 1 (char 0)
   - Revolut: FetchError: HTTP 403 for https://www.revolut.com/careers/
