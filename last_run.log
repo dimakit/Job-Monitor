@@ -1,8 +1,8 @@
-Run at: 2026-07-29T00:58:27.955537Z
+Run at: 2026-07-29T14:09:16.350653Z
 Companies checked: 70
-New findings: 7
+New findings: 0
 Errors: 1
 SMTP env vars present: True
-Email sent: True
+Email sent: False
 Error details:
   - Revolut: FetchError: HTTP 403 for https://www.revolut.com/careers/
