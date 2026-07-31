@@ -1,9 +1,8 @@
-Run at: 2026-07-31T01:02:15.472831Z
+Run at: 2026-07-31T13:56:58.177867Z
 Companies checked: 70
-New findings: 10
-Errors: 2
+New findings: 0
+Errors: 1
 SMTP env vars present: True
-Email sent: True
+Email sent: False
 Error details:
-  - Palantir: JSONDecodeError: Expecting value: line 1 column 1 (char 0)
   - Revolut: FetchError: HTTP 403 for https://www.revolut.com/careers/
