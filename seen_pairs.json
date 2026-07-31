@@ -361,11 +361,27 @@
   },
   {
     "company": "Brex",
+    "title": "Senior Product Manager, Travel"
+  },
+  {
+    "company": "Brex",
     "title": "Staff Product Manager"
   },
   {
     "company": "Brex",
+    "title": "Staff Product Manager,  Embedded"
+  },
+  {
+    "company": "Brex",
     "title": "Staff Product Manager, AI"
+  },
+  {
+    "company": "Brex",
+    "title": "Staff Product Manager, Card"
+  },
+  {
+    "company": "Brex",
+    "title": "Staff Product Manager, Expenses"
   },
   {
     "company": "Brex",
@@ -646,6 +662,10 @@
   {
     "company": "Capital One",
     "title": "Product Manager - Capital One Travel"
+  },
+  {
+    "company": "Capital One",
+    "title": "Product Manager - Card Integration Team"
   },
   {
     "company": "Capital One",
@@ -1102,6 +1122,14 @@
   {
     "company": "CoreWeave",
     "title": "VP, Product AI/ ML"
+  },
+  {
+    "company": "Cursor",
+    "title": "Head of Product Education Engineering"
+  },
+  {
+    "company": "Dandy",
+    "title": "Director, Enterprise Product Management"
   },
   {
     "company": "Databricks",
@@ -1653,6 +1681,10 @@
   },
   {
     "company": "JPMorgan",
+    "title": "Product Manager, Card Shopping Experimentation"
+  },
+  {
+    "company": "JPMorgan",
     "title": "Product Manager, Chase Digital Assistant"
   },
   {
@@ -1836,6 +1868,10 @@
     "title": "Product Manager, Ads Platform - Ads Reporting"
   },
   {
+    "company": "Netflix",
+    "title": "Sr. Manager, Product Management (Ad Sales Products)"
+  },
+  {
     "company": "Notion",
     "title": "Product Manager, Workspaces"
   },
@@ -1962,6 +1998,10 @@
   {
     "company": "Rippling",
     "title": "Product Lead, Workflow Studio"
+  },
+  {
+    "company": "Robinhood",
+    "title": "Senior Product Manager, Crypto Wallet"
   },
   {
     "company": "Robinhood",
