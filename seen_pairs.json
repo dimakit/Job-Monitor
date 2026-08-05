@@ -341,6 +341,10 @@
   },
   {
     "company": "Anthropic",
+    "title": "Product Manager, Claude Tag"
+  },
+  {
+    "company": "Anthropic",
     "title": "Product Manager, Compute Platform"
   },
   {
@@ -350,6 +354,10 @@
   {
     "company": "Anthropic",
     "title": "Product Manager, GTM Experiences"
+  },
+  {
+    "company": "Anthropic",
+    "title": "Product Manager, Research (Code)"
   },
   {
     "company": "Anthropic",
@@ -802,6 +810,10 @@
   {
     "company": "Capital One",
     "title": "Senior Associate, Product Manager - Card Site Team"
+  },
+  {
+    "company": "Capital One",
+    "title": "Senior Associate, Product Manager - Commercial Card (Business Cards & Payments)"
   },
   {
     "company": "Capital One",
@@ -2037,6 +2049,10 @@
   },
   {
     "company": "Ramp",
+    "title": "Product Manager | Tax"
+  },
+  {
+    "company": "Ramp",
     "title": "Product Manager | Vendor Intelligence & Marketplace"
   },
   {
@@ -2177,11 +2193,23 @@
   },
   {
     "company": "Scale AI",
+    "title": "Senior AI Product Manager, Code"
+  },
+  {
+    "company": "Scale AI",
+    "title": "Senior AI Product Manager, Cybersecurity"
+  },
+  {
+    "company": "Scale AI",
     "title": "Senior AI Product Manager, Finance Agents"
   },
   {
     "company": "Scale AI",
     "title": "Senior AI Product Manager, Healthcare Agents"
+  },
+  {
+    "company": "Scale AI",
+    "title": "Senior AI Product Manager, Leaderboard"
   },
   {
     "company": "Scale AI",
