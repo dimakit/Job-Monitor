@@ -129,13 +129,8 @@ def fetch(url, method="GET", body=None, extra_headers=None, timeout=15, retries=
     raise last_error
 
 
-def qualifies(title, location_text, location_exception=False):
-    if EXCLUDE_REGEX.search(title):
-        return False
-    if not PM_REGEX.search(title):
-        return False
-    if location_exception:
-        return True
+def _location_qualifies_normally(location_text):
+    """True if the location satisfies the standard NY-or-US-remote gate."""
     loc = location_text or ""
     if not LOC_REGEX.search(loc):
         return False
@@ -143,6 +138,16 @@ def qualifies(title, location_text, location_exception=False):
         return True
     # matched only via "Remote" -- reject if it's paired with a non-US location marker
     return not FOREIGN_REMOTE_MARKER_REGEX.search(loc)
+
+
+def qualifies(title, location_text, location_exception=False):
+    if EXCLUDE_REGEX.search(title):
+        return False
+    if not PM_REGEX.search(title):
+        return False
+    if location_exception:
+        return True
+    return _location_qualifies_normally(location_text)
 
 
 # ---------- scoring ----------
@@ -220,7 +225,7 @@ One entry per posting, in any order, matching every "id" given.
 """
 
 
-def _deterministic_bonus(tier, location_text):
+def _deterministic_bonus(tier, location_text, location_penalty=0):
     try:
         tier_num = float(tier)
     except (TypeError, ValueError):
@@ -231,18 +236,30 @@ def _deterministic_bonus(tier, location_text):
         tier_bonus = 1
     else:
         tier_bonus = 0
-    location_bonus = 0.5 if NY_EXACT_REGEX.search(location_text or "") else 0
+    loc = location_text or ""
+    if location_penalty:
+        # location-flexible company: NY and US-remote both count as the ideal
+        # (+0.5); a genuinely out-of-area office scores location_penalty BELOW
+        # that ideal, so (NY score - out-of-area score) == location_penalty.
+        if _location_qualifies_normally(loc):
+            location_bonus = 0.5
+        else:
+            location_bonus = 0.5 - location_penalty
+    elif NY_EXACT_REGEX.search(loc):
+        location_bonus = 0.5
+    else:
+        location_bonus = 0
     return tier_bonus + location_bonus
 
 
-def score_posting_heuristic(title, location_text, tier):
+def score_posting_heuristic(title, location_text, tier, location_penalty=0):
     """Crude keyword-based fallback if the LLM call isn't available."""
     score = 4
     if re.search(r"Director|VP\b|Vice President|Head of|Chief Product", title, re.IGNORECASE):
         score += 1
     if re.search(r"payment|fintech|pricing|monetization|bank|wallet|lending|credit", title, re.IGNORECASE):
         score += 1
-    score += _deterministic_bonus(tier, location_text)
+    score += _deterministic_bonus(tier, location_text, location_penalty)
     return max(2, min(9.5, score))
 
 
@@ -298,13 +315,13 @@ def score_all_findings(findings):
     """Attaches 'score' and 'rationale' to each finding dict in place."""
     llm_results = score_postings_llm(findings)
     for i, f in enumerate(findings):
-        bonus = _deterministic_bonus(f["tier"], f["location"])
+        bonus = _deterministic_bonus(f["tier"], f["location"], f.get("loc_penalty", 0))
         if i in llm_results:
             role_fit, rationale = llm_results[i]
             f["score"] = round(max(2, min(9.5, role_fit + bonus)) * 2) / 2  # round to nearest 0.5
             f["rationale"] = rationale
         else:
-            f["score"] = score_posting_heuristic(f["title"], f["location"], f["tier"])
+            f["score"] = score_posting_heuristic(f["title"], f["location"], f["tier"], f.get("loc_penalty", 0))
             f["rationale"] = "(heuristic fallback -- LLM scoring unavailable this run)"
 
 
@@ -672,6 +689,7 @@ def handler_revolut(cfg):
 
 
 def handler_uber(cfg):
+    loc_bypass = bool(cfg.get("location_flexible")) or bool(cfg.get("location_exception"))
     sm_body, _, _ = fetch("https://jobs.uber.com/en/jobs/sitemap.xml")
     sm_text = sm_body.decode("utf-8", errors="ignore")
     job_urls = re.findall(r"<loc>([^<]+)</loc>", sm_text)
@@ -686,7 +704,7 @@ def handler_uber(cfg):
         if not m:
             continue
         title_full = html_module.unescape(m.group(1))
-        if qualifies(title_full, title_full, False):
+        if qualifies(title_full, title_full, loc_bypass):
             parts = title_full.split(", ")
             title = ", ".join(parts[:-2]) if len(parts) > 2 else parts[0]
             loc = ", ".join(parts[-2:]) if len(parts) > 2 else (parts[1] if len(parts) > 1 else "")
@@ -1092,7 +1110,10 @@ def main():
         platform = cfg.get("platform")
         if platform in ("unresolved", "manual_only"):
             continue
-        loc_exc = cfg.get("location_exception", False)
+        loc_penalty = float(cfg.get("location_flexible") or 0)
+        # location_flexible companies bypass the location gate like location_exception;
+        # NY/US-remote postings stay at the ideal, out-of-area ones score loc_penalty below it.
+        loc_exc = bool(cfg.get("location_exception")) or bool(loc_penalty)
         try:
             if platform == "greenhouse":
                 results = handler_greenhouse(cfg["token"], loc_exc)
@@ -1118,6 +1139,7 @@ def main():
                     "title": r["title"],
                     "location": r["location"],
                     "url": r["url"],
+                    "loc_penalty": loc_penalty,
                 })
                 seen_pairs.add(pair)
         time.sleep(0.2)
