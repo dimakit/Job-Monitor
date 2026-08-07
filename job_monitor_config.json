@@ -1,5 +1,5 @@
 {
-  "_readme": "Company -> platform/token config for the automated job monitor. Generic platforms (greenhouse/ashby/lever) use a shared fetch+filter routine keyed on 'token'. 'special' platform means the company has a bespoke handler function in monitor.py (see PLATFORM_NOTES in that file). 'unresolved' means no working token/platform could be re-derived via automated slug-guessing as of 2026-07-12 and needs a fresh manual check (a link from Dimitry, or dedicated investigation) before it can be monitored automatically.",
+  "_readme": "Company -> platform/token config for the automated job monitor. Generic platforms (greenhouse/ashby/lever) use a shared fetch+filter routine keyed on 'token'. 'special' platform means the company has a bespoke handler function in monitor.py (see PLATFORM_NOTES in that file). 'unresolved' means no working token/platform could be re-derived via automated slug-guessing as of 2026-07-12 and needs a fresh manual check (a link from Dimitry, or dedicated investigation) before it can be monitored automatically. 'location_flexible': N surfaces a company's postings regardless of location (bypassing the NY/US-remote gate). NY and US-remote postings are treated as the ideal; a genuinely out-of-area posting scores N points below that ideal (so N=0.5 puts an SF role half a point under a NY/remote role of the same fit).",
   "companies": {
     "Anthropic": {"tier": 1, "platform": "greenhouse", "token": "anthropic"},
     "OpenAI": {"tier": 1, "platform": "ashby", "token": "openai"},
@@ -82,7 +82,7 @@
     "Airbnb": {"tier": 1, "platform": "special", "handler": "airbnb"},
     "Rippling": {"tier": 2, "platform": "manual_only", "note": "cannot autonomously discover new postings (Algolia credentials not statically available); relies on Dimitry sending direct ats.rippling.com links"},
     "Revolut": {"tier": 2, "platform": "special", "handler": "revolut"},
-    "Uber": {"tier": 1, "platform": "special", "handler": "uber"},
+    "Uber": {"tier": 1, "platform": "special", "handler": "uber", "location_flexible": 0.5},
     "Box": {"tier": 2, "platform": "special", "handler": "box"},
     "American Express": {"tier": "2.5", "platform": "special", "handler": "american_express"},
     "Google": {"tier": 1, "platform": "special", "handler": "google"}
