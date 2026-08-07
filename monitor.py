@@ -25,7 +25,8 @@ import smtplib
 import time
 import urllib.request
 import urllib.error
-from datetime import date, datetime
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from pathlib import Path
@@ -33,6 +34,11 @@ from pathlib import Path
 REPO_DIR = Path(__file__).resolve().parent
 CONFIG_PATH = REPO_DIR / "job_monitor_config.json"
 SEEN_PATH = REPO_DIR / "seen_pairs.json"
+
+# GitHub Actions runners are UTC, which pushed the evening run's date label a
+# day ahead (a 7pm ET run is already "tomorrow" in UTC). Label runs in Dimitry's
+# local timezone so the subject/header date matches when the email actually lands.
+LOCAL_TZ = ZoneInfo("America/New_York")
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -1068,7 +1074,7 @@ def git_commit_and_push():
     if not status.stdout.strip():
         print("No changes -- nothing to commit.")
         return
-    today = date.today().isoformat()
+    today = datetime.now(LOCAL_TZ).date().isoformat()
     subprocess.run(["git", "commit", "-m", f"Run log + seen postings update — {today}"], cwd=REPO_DIR, check=True)
     subprocess.run(["git", "push"], cwd=REPO_DIR, check=True)
     print("Committed and pushed run log + updated seen_pairs.json.")
@@ -1118,7 +1124,7 @@ def main():
 
     score_all_findings(new_findings)
 
-    today = date.today().isoformat()
+    today = datetime.now(LOCAL_TZ).date().isoformat()
     print(f"New qualifying postings: {len(new_findings)}")
     for nf in new_findings:
         print(f"  [{nf['score']}] [{nf['company']}] {nf['title']} — {nf['location']}")
