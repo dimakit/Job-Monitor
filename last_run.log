@@ -1,9 +1,10 @@
-Run at: 2026-08-25T00:28:51.893467Z
+Run at: 2026-08-25T12:34:08.203722Z
 Companies checked: 70
-New findings: 6
-Errors: 2
+New findings: 0
+Errors: 3
 SMTP env vars present: True
-Email sent: True
+Email sent: False
 Error details:
   - Thinking Machines Lab: FetchError: HTTP 404 for https://boards-api.greenhouse.io/v1/boards/thinkingmachines/jobs?content=false
   - Revolut: FetchError: HTTP 403 for https://www.revolut.com/careers/
+  - American Express: JSONDecodeError: Expecting value: line 1 column 1 (char 0)
