@@ -1,10 +1,9 @@
-Run at: 2026-09-02T16:03:20.396297Z
+Run at: 2026-09-03T01:55:12.527022Z
 Companies checked: 70
-New findings: 1
-Errors: 3
+New findings: 6
+Errors: 2
 SMTP env vars present: True
 Email sent: True
 Error details:
-  - JPMorgan: JSONDecodeError: Expecting value: line 1 column 1 (char 0)
   - Thinking Machines Lab: FetchError: HTTP 404 for https://boards-api.greenhouse.io/v1/boards/thinkingmachines/jobs?content=false
   - Revolut: FetchError: HTTP 403 for https://www.revolut.com/careers/
