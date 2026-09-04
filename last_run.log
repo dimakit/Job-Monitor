@@ -1,10 +1,10 @@
-Run at: 2026-09-03T15:51:09.939076Z
+Run at: 2026-09-04T01:45:34.978045Z
 Companies checked: 70
-New findings: 2
+New findings: 15
 Errors: 3
 SMTP env vars present: True
 Email sent: True
 Error details:
-  - Mastercard: FetchError: HTTP 502 for https://mastercard.wd1.myworkdayjobs.com/wday/cxs/mastercard/CorporateCareers/jobs
+  - Databricks: JSONDecodeError: Expecting value: line 1 column 1 (char 0)
   - Thinking Machines Lab: FetchError: HTTP 404 for https://boards-api.greenhouse.io/v1/boards/thinkingmachines/jobs?content=false
   - Revolut: FetchError: HTTP 403 for https://www.revolut.com/careers/

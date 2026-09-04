@@ -837,6 +837,10 @@
   },
   {
     "company": "Capital One",
+    "title": "Manager, Product Management, DepEco"
+  },
+  {
+    "company": "Capital One",
     "title": "Manager, Product Management, Google AI"
   },
   {
@@ -2137,6 +2141,10 @@
   },
   {
     "company": "Instacart",
+    "title": "Associate Product Manager"
+  },
+  {
+    "company": "Instacart",
     "title": "Director of Product, Agentic Commerce"
   },
   {
@@ -2158,6 +2166,10 @@
   {
     "company": "Instacart",
     "title": "Senior Product Manager, Catalog"
+  },
+  {
+    "company": "Instacart",
+    "title": "Senior Product Manager, Discounting Platform"
   },
   {
     "company": "Instacart",
@@ -2421,6 +2433,10 @@
   },
   {
     "company": "JPMorgan",
+    "title": "Product Manager, GenAI Initiatives-Payments-Vice President"
+  },
+  {
+    "company": "JPMorgan",
     "title": "Product Manager, Payments Data and Analytics-Vice President"
   },
   {
@@ -2434,6 +2450,10 @@
   {
     "company": "JPMorgan",
     "title": "Product Manager, VP - Card Benefits Experience"
+  },
+  {
+    "company": "JPMorgan",
+    "title": "Product Manager, Vice President - Amenity Services"
   },
   {
     "company": "JPMorgan",
@@ -2474,6 +2494,10 @@
   {
     "company": "JPMorgan",
     "title": "Senior Associate, Product Manager  - Delegated Experiences and Agentic AI - Trust & Security"
+  },
+  {
+    "company": "JPMorgan",
+    "title": "Senior Associate, Product Manager \u2013 Open Banking"
   },
   {
     "company": "JPMorgan",
@@ -2633,7 +2657,15 @@
   },
   {
     "company": "Mastercard",
+    "title": "Product Specialist, Product Management, Global Consumer Credit Commercialization"
+  },
+  {
+    "company": "Mastercard",
     "title": "Vice President, Product Management"
+  },
+  {
+    "company": "Mastercard",
+    "title": "Vice President, Product Management, Stablecoins and Open Standard"
   },
   {
     "company": "Netflix",
@@ -2701,6 +2733,10 @@
   },
   {
     "company": "Netflix",
+    "title": "Product Manager, Ads Platform - Experimentation & Incrementality Measurement"
+  },
+  {
+    "company": "Netflix",
     "title": "Sr. Manager, Product Management (Ad Sales Products)"
   },
   {
@@ -2722,6 +2758,26 @@
   {
     "company": "Palo Alto Networks",
     "title": "Senior Product Manager, Storage Cost Optimization (Chronosphere)"
+  },
+  {
+    "company": "Perplexity",
+    "title": "Product Manager, AI Capabilities"
+  },
+  {
+    "company": "Perplexity",
+    "title": "Product Manager, Core Experience"
+  },
+  {
+    "company": "Perplexity",
+    "title": "Product Manager, Growth"
+  },
+  {
+    "company": "Perplexity",
+    "title": "Product Manager, Mobile Apps"
+  },
+  {
+    "company": "Perplexity",
+    "title": "Product Manager, SMB Growth"
   },
   {
     "company": "Plaid",
@@ -2830,6 +2886,10 @@
   {
     "company": "Reddit",
     "title": "Staff Product Manager, Ads Safety (Ads Review)"
+  },
+  {
+    "company": "Reddit",
+    "title": "Staff Product Manager, Ads Signals"
   },
   {
     "company": "Reddit",
