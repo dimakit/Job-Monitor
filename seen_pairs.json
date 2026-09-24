@@ -101,6 +101,10 @@
   },
   {
     "company": "Affirm",
+    "title": "Senior Director, Product Management (Financial Platforms)"
+  },
+  {
+    "company": "Affirm",
     "title": "Senior Product Manager, 1: Many Merchant Growth"
   },
   {
@@ -766,6 +770,10 @@
   {
     "company": "Capital One",
     "title": "Manager, Product Management - AI/ML"
+  },
+  {
+    "company": "Capital One",
+    "title": "Manager, Product Management - AI/ML, Enterprise Feature Platform"
   },
   {
     "company": "Capital One",
@@ -1956,6 +1964,10 @@
     "title": "Sr. Product Manager - Technical"
   },
   {
+    "company": "Databricks",
+    "title": "Staff Product Manager, US Public Sector"
+  },
+  {
     "company": "Datadog",
     "title": "Director, Product Management - AI Observability"
   },
@@ -2045,11 +2057,19 @@
   },
   {
     "company": "Datadog",
+    "title": "Senior Product Manager - Business Intelligence"
+  },
+  {
+    "company": "Datadog",
     "title": "Senior Product Manager - Data Agent"
   },
   {
     "company": "Datadog",
     "title": "Senior Product Manager - Database AI Optimization"
+  },
+  {
+    "company": "Datadog",
+    "title": "Senior Product Manager - Feature Flagging"
   },
   {
     "company": "Datadog",
@@ -2106,6 +2126,10 @@
   {
     "company": "Datadog",
     "title": "Staff Product Manager, Threat Detection and Incident Response (Cloud SIEM)"
+  },
+  {
+    "company": "Dropbox",
+    "title": "Product Manager"
   },
   {
     "company": "Dropbox",
@@ -3610,6 +3634,10 @@
   {
     "company": "Scale AI",
     "title": "Product Manager, Gen AI"
+  },
+  {
+    "company": "Scale AI",
+    "title": "Senior AI Product Manager"
   },
   {
     "company": "Scale AI",
