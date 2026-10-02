@@ -1,6 +1,6 @@
-Run at: 2026-10-02T02:58:54.471796Z
-Companies checked: 70
-New findings: 4
+Run at: 2026-10-02T17:27:32.309978Z
+Companies checked: 72
+New findings: 22
 Errors: 2
 SMTP env vars present: True
 Email sent: True
