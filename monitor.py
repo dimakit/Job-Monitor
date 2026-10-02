@@ -841,6 +841,58 @@ def handler_capital_one(cfg):
     return out
 
 
+APPLE_TITLE_RE = re.compile(
+    r'class="link-inline t-intro word-wrap-break-word more" aria-label="[^"]*" '
+    r'href="(/en-us/details/[^"]+)" data-discover="true">([^<]+)</a>'
+)
+APPLE_TEAM_RE = re.compile(r'class="team-name[^"]*">([^<]*)</span>')
+
+
+def handler_apple(cfg):
+    # Apple's search results are server-rendered into the page HTML (confirmed via raw
+    # curl -- no JS needed, no public API). The page renders two overlapping structures
+    # (a card list and an accessible table) with inconsistent per-job location markup
+    # between them, so rather than parse location per job, trust the search URL's own
+    # location scoping (location=new-york-city-NYC already filters to NYC metro) --
+    # same hardcoded-location-string approach handler_capital_one uses above.
+    out = []
+    seen_hrefs = set()
+    page = 1
+    while page <= 10:
+        url = (
+            "https://jobs.apple.com/en-us/search?search=product+manager"
+            f"&location=new-york-city-NYC&sort=newest&page={page}"
+        )
+        try:
+            body, status, _ = fetch(url)
+        except Exception:
+            break
+        html_text = body.decode("utf-8", errors="ignore")
+        titles = APPLE_TITLE_RE.findall(html_text)
+        if not titles:
+            break
+        teams = APPLE_TEAM_RE.findall(html_text)
+        new_this_page = 0
+        for i, (href, title) in enumerate(titles):
+            title = title.strip()
+            if href in seen_hrefs:
+                continue
+            seen_hrefs.add(href)
+            new_this_page += 1
+            team = teams[i].strip() if i < len(teams) else ""
+            if qualifies(title, "New York City Metro Area", False):
+                out.append({
+                    "title": f"{title} ({team})" if team else title,
+                    "location": "New York City Metro Area (search-scoped)",
+                    "url": "https://jobs.apple.com" + href.split("?")[0],
+                })
+        if new_this_page == 0:
+            break
+        page += 1
+        time.sleep(0.3)
+    return out
+
+
 SPECIAL_HANDLERS = {
     "amazon": handler_amazon,
     "jpmorgan": handler_jpmorgan,
@@ -862,6 +914,7 @@ SPECIAL_HANDLERS = {
     "mastercard": handler_mastercard,
     "adobe": handler_adobe,
     "capital_one": handler_capital_one,
+    "apple": handler_apple,
 }
 
 
