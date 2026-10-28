@@ -1,9 +1,11 @@
-Run at: 2026-10-28T03:10:52.135432Z
+Run at: 2026-10-28T18:11:32.717963Z
 Companies checked: 72
-New findings: 3
-Errors: 2
+New findings: 4
+Errors: 4
 SMTP env vars present: True
 Email sent: True
 Error details:
+  - JPMorgan: JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+  - Netflix: FetchError: HTTP 429 for https://explore.jobs.netflix.net/api/apply/v2/jobs?domain=netflix.com&query=Product+Manager&start=225&num=25
   - Thinking Machines Lab: FetchError: HTTP 404 for https://boards-api.greenhouse.io/v1/boards/thinkingmachines/jobs?content=false
   - Revolut: FetchError: HTTP 403 for https://www.revolut.com/careers/
