@@ -1,9 +1,9 @@
-Run at: 2026-11-02T03:19:29.377509Z
+Run at: 2026-11-02T21:50:51.165074Z
 Companies checked: 72
-New findings: 0
+New findings: 4
 Errors: 2
 SMTP env vars present: True
-Email sent: False
+Email sent: True
 Error details:
   - Thinking Machines Lab: FetchError: HTTP 404 for https://boards-api.greenhouse.io/v1/boards/thinkingmachines/jobs?content=false
   - Revolut: FetchError: HTTP 403 for https://www.revolut.com/careers/
