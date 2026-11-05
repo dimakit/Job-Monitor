@@ -1917,6 +1917,10 @@
   },
   {
     "company": "Capital One",
+    "title": "Senior Manager, Product Management - AI/ML Personalization"
+  },
+  {
+    "company": "Capital One",
     "title": "Senior Manager, Product Management - Back Office Servicing Experiences"
   },
   {
@@ -1970,6 +1974,10 @@
   {
     "company": "Capital One",
     "title": "Senior Manager, Product Management - Emerging Payments"
+  },
+  {
+    "company": "Capital One",
+    "title": "Senior Manager, Product Management - Enterprise Consumer Products (ECP)"
   },
   {
     "company": "Capital One",
@@ -3121,7 +3129,15 @@
   },
   {
     "company": "Google",
+    "title": "Product Manager, Advertiser Platform Partnerships"
+  },
+  {
+    "company": "Google",
     "title": "Product Manager, CBRNE, DeepMind"
+  },
+  {
+    "company": "Google",
+    "title": "Product Manager, Connect Deals Seller Experience, Deals and Incentives"
   },
   {
     "company": "Google",
@@ -3174,6 +3190,10 @@
   {
     "company": "Google",
     "title": "Product Manager, Search Ads Quality Modeling"
+  },
+  {
+    "company": "Google",
+    "title": "Product Manager, Search Ads Syndication"
   },
   {
     "company": "Google",
@@ -3990,6 +4010,10 @@
   {
     "company": "JPMorgan",
     "title": "Vice President, Product Manager - Client 360 World Model & Ontology"
+  },
+  {
+    "company": "JPMorgan",
+    "title": "Vice President, Product Manager - Consumer Branded Cards Cross Card Capabilities"
   },
   {
     "company": "JPMorgan",
@@ -4950,6 +4974,10 @@
   {
     "company": "Stripe",
     "title": "Senior Product Manager, Enterprise"
+  },
+  {
+    "company": "Stripe",
+    "title": "Staff Product Manager,  Startup Products"
   },
   {
     "company": "Stripe",

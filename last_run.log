@@ -1,9 +1,10 @@
-Run at: 2026-11-05T04:24:42.938433Z
+Run at: 2026-11-05T19:47:13.661336Z
 Companies checked: 72
-New findings: 5
-Errors: 2
+New findings: 7
+Errors: 3
 SMTP env vars present: True
 Email sent: True
 Error details:
+  - Mastercard: JSONDecodeError: Expecting value: line 1 column 1 (char 0)
   - Thinking Machines Lab: FetchError: HTTP 404 for https://boards-api.greenhouse.io/v1/boards/thinkingmachines/jobs?content=false
   - Revolut: FetchError: HTTP 403 for https://www.revolut.com/careers/
