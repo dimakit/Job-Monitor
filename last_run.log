@@ -1,9 +1,10 @@
-Run at: 2026-11-09T03:40:57.331759Z
+Run at: 2026-11-09T22:35:36.373145Z
 Companies checked: 72
-New findings: 0
-Errors: 2
+New findings: 7
+Errors: 3
 SMTP env vars present: True
-Email sent: False
+Email sent: True
 Error details:
+  - Netflix: FetchError: HTTP 429 for https://explore.jobs.netflix.net/api/apply/v2/jobs?domain=netflix.com&query=Product+Manager&start=0&num=25
   - Thinking Machines Lab: FetchError: HTTP 404 for https://boards-api.greenhouse.io/v1/boards/thinkingmachines/jobs?content=false
   - Revolut: FetchError: HTTP 403 for https://www.revolut.com/careers/
