@@ -1,11 +1,9 @@
-Run at: 2026-11-14T04:10:47.028423Z
+Run at: 2026-11-14T18:09:08.602548Z
 Companies checked: 72
-New findings: 4
-Errors: 4
+New findings: 0
+Errors: 2
 SMTP env vars present: True
-Email sent: True
+Email sent: False
 Error details:
-  - Mastercard: FetchError: HTTP 521 for https://mastercard.wd1.myworkdayjobs.com/wday/cxs/mastercard/CorporateCareers/jobs
-  - Palo Alto Networks: FetchError: HTTP 521 for https://paloaltonetworks.wd5.myworkdayjobs.com/wday/cxs/paloaltonetworks/panwexternalcareers/jobs
   - Thinking Machines Lab: FetchError: HTTP 404 for https://boards-api.greenhouse.io/v1/boards/thinkingmachines/jobs?content=false
   - Revolut: FetchError: HTTP 403 for https://www.revolut.com/careers/
