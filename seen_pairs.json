@@ -977,6 +977,10 @@
   },
   {
     "company": "Capital One",
+    "title": "Director, Product Management-Airkey"
+  },
+  {
+    "company": "Capital One",
     "title": "Director, Product Management-CORE"
   },
   {
@@ -1801,6 +1805,10 @@
   },
   {
     "company": "Capital One",
+    "title": "Senior Associate, Product Manager - Data Platform"
+  },
+  {
+    "company": "Capital One",
     "title": "Senior Associate, Product Manager - Debit Experiences"
   },
   {
@@ -1834,6 +1842,10 @@
   {
     "company": "Capital One",
     "title": "Senior Associate, Product Manager - Trade Credit Settlements"
+  },
+  {
+    "company": "Capital One",
+    "title": "Senior Associate, Product Manager \u2013 Core Banking Operations & Enablement"
   },
   {
     "company": "Capital One",
@@ -3073,6 +3085,10 @@
   },
   {
     "company": "Google",
+    "title": "Group Product Manager, Finance Engineering and AI Transformation"
+  },
+  {
+    "company": "Google",
     "title": "Group Product Manager, Flow Growth and Monetization Lead, Google Labs"
   },
   {
@@ -3145,6 +3161,10 @@
   },
   {
     "company": "Google",
+    "title": "Product Management Director, Googler Technology and Engineering, Spaces"
+  },
+  {
+    "company": "Google",
     "title": "Product Manager I, Ads"
   },
   {
@@ -3190,6 +3210,10 @@
   {
     "company": "Google",
     "title": "Product Manager II, Display Ads, Audiences"
+  },
+  {
+    "company": "Google",
+    "title": "Product Manager II, Generative AI, Google Cloud"
   },
   {
     "company": "Google",
@@ -3273,6 +3297,10 @@
   },
   {
     "company": "Google",
+    "title": "Product Manager, Cyber Gemini, DeepMind"
+  },
+  {
+    "company": "Google",
     "title": "Product Manager, Data Management, Google SecOps"
   },
   {
@@ -3346,6 +3374,10 @@
   {
     "company": "Google",
     "title": "Product Manager, aiEDU"
+  },
+  {
+    "company": "Google",
+    "title": "Senior Director, Product Management, Core User Protection"
   },
   {
     "company": "Google",
@@ -3734,6 +3766,10 @@
   {
     "company": "JPMorgan",
     "title": "Executive Director, Partner Platforms Product Manager, Chase Travel"
+  },
+  {
+    "company": "JPMorgan",
+    "title": "Executive Director, Product Management - Digital Assets"
   },
   {
     "company": "JPMorgan",
@@ -4206,6 +4242,10 @@
   {
     "company": "JPMorgan",
     "title": "Vice President, Product Manager - Trust & Security Authentication Platforms and Modeling Team"
+  },
+  {
+    "company": "JPMorgan",
+    "title": "Vice President, Product Manager - Zelle Expansion"
   },
   {
     "company": "JPMorgan",
@@ -5092,6 +5132,10 @@
     "title": "Senior Product Manager, Consumer - Audiobooks"
   },
   {
+    "company": "Spotify",
+    "title": "VP, Head of Product - Advertising"
+  },
+  {
     "company": "Squarespace",
     "title": "Senior Director of Product, Mobile"
   },
@@ -5142,6 +5186,10 @@
   {
     "company": "Stripe",
     "title": "Product Manager, Disputes"
+  },
+  {
+    "company": "Stripe",
+    "title": "Product Manager, Finance Operations"
   },
   {
     "company": "Stripe",
@@ -5321,6 +5369,18 @@
   },
   {
     "company": "Uber",
+    "title": "Director, Product Management - Delivery"
+  },
+  {
+    "company": "Uber",
+    "title": "Director, Product Management, Earner Experience"
+  },
+  {
+    "company": "Uber",
+    "title": "Group Product Manager, Consumer"
+  },
+  {
+    "company": "Uber",
     "title": "Group Product Manager, Grocery & Retail Advertising"
   },
   {
@@ -5329,7 +5389,23 @@
   },
   {
     "company": "Uber",
+    "title": "Lead Product Manager  - Catalog"
+  },
+  {
+    "company": "Uber",
+    "title": "Lead Product Manager - Marketplace"
+  },
+  {
+    "company": "Uber",
+    "title": "Lead Product Manager - Uber Health"
+  },
+  {
+    "company": "Uber",
     "title": "Lead Product Manager Remote Assistance"
+  },
+  {
+    "company": "Uber",
+    "title": "Lead Product Manager, AV Labs"
   },
   {
     "company": "Uber",
@@ -5341,6 +5417,18 @@
   },
   {
     "company": "Uber",
+    "title": "Lead Product Manager, Grocery & Retail Ads"
+  },
+  {
+    "company": "Uber",
+    "title": "Lead Product Manager, Merchant Growth"
+  },
+  {
+    "company": "Uber",
+    "title": "Lead Product Manager, Mobility Marketplace"
+  },
+  {
+    "company": "Uber",
     "title": "Lead Product Manager, Seller Tech"
   },
   {
@@ -5349,7 +5437,35 @@
   },
   {
     "company": "Uber",
+    "title": "Marketplace Product Lead \u2013 LatAm Delivery"
+  },
+  {
+    "company": "Uber",
     "title": "Product Manager II"
+  },
+  {
+    "company": "Uber",
+    "title": "Product Manager II - Mobility Matching"
+  },
+  {
+    "company": "Uber",
+    "title": "Product Manager II - Payments"
+  },
+  {
+    "company": "Uber",
+    "title": "Product Manager II, Agentic AI"
+  },
+  {
+    "company": "Uber",
+    "title": "Product Manager, Marketplace"
+  },
+  {
+    "company": "Uber",
+    "title": "Senior Product Manager -  Account Security"
+  },
+  {
+    "company": "Uber",
+    "title": "Senior Product Manager - AI Quality"
   },
   {
     "company": "Uber",
@@ -5370,6 +5486,50 @@
   {
     "company": "Uber",
     "title": "Senior Product Manager, Habituation"
+  },
+  {
+    "company": "Uber",
+    "title": "Sr Operations & Product Manager"
+  },
+  {
+    "company": "Uber",
+    "title": "Sr Product Manager - Agent Platform and Infrastructure"
+  },
+  {
+    "company": "Uber",
+    "title": "Sr Product Manager - Financial Products"
+  },
+  {
+    "company": "Uber",
+    "title": "Sr Product Manager - Maps ML"
+  },
+  {
+    "company": "Uber",
+    "title": "Sr Product Manager - Tech"
+  },
+  {
+    "company": "Uber",
+    "title": "Sr Product Manager - Uber Parcel"
+  },
+  {
+    "company": "Uber",
+    "title": "Sr Product Manager, Mobility Ads"
+  },
+  {
+    "company": "Uber",
+    "title": "Sr Product Manager, Mobility Matching"
+  },
+  {
+    "company": "Uber",
+    "title": "Sr Product Manager, Road Safety"
+  },
+  {
+    "company": "Uber",
+    "title": "Sr Product Manager, Tech - Product"
+  },
+  {
+    "company": "Uber",
+    "title": "Sr. Product Manager - Delivery Experience"
   },
   {
     "company": "Upstart",
